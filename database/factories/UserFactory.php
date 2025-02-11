@@ -2,43 +2,67 @@
 
 namespace Database\Factories;
 
-use Illuminate\Database\Eloquent\Factories\Factory;
+use App\Models\Team;
 use App\Models\User;
-use Faker\Factory as FakerFactory;
+use Illuminate\Database\Eloquent\Factories\Factory;
+use Illuminate\Support\Str;
+use Laravel\Jetstream\Features;
 
-
+/**
+ * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\User>
+ */
 class UserFactory extends Factory
 {
-    protected $model = User::class;
-
-    public function definition()
+    /**
+     * Define the model's default state.
+     *
+     * @return array<string, mixed>
+     */
+    public function definition(): array
     {
-
-        $faker = FakerFactory::create('es_ES');
-
         return [
-            'name' => $faker->name, // Genera un nombre aleatorio
-            'email' => $faker->unique()->safeEmail, // Genera un correo electrónico único
-            'password' => bcrypt('password'), // Contraseña por defecto
-            'is_admin' => $faker->boolean(5), // 5% de probabilidad de ser administrador
+            'name' => $this->faker->name(),
+            'email' => $this->faker->unique()->safeEmail(),
+            'email_verified_at' => now(),
+            'password' => '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', // password
+            'two_factor_secret' => null,
+            'two_factor_recovery_codes' => null,
+            'remember_token' => Str::random(10),
+            'profile_photo_path' => null,
+            'current_team_id' => null,
         ];
     }
 
     /**
-     * Define un estado para un usuario administrador.
+     * Indicate that the model's email address should be unverified.
      */
-    public function admin()
+    public function unverified(): static
     {
-        return $this->state([
-            'name' => 'Admin',
-            'email' => 'admin@example.com',
-            'password' => bcrypt('password'),
-            'is_admin' => true,
-        ]);
+        return $this->state(function (array $attributes) {
+            return [
+                'email_verified_at' => null,
+            ];
+        });
     }
 
-    protected function newFaker()
+    /**
+     * Indicate that the user should have a personal team.
+     */
+    public function withPersonalTeam(callable $callback = null): static
     {
-        return \Faker\Factory::create('es_ES'); // Usa el idioma español
+        if (! Features::hasTeamFeatures()) {
+            return $this->state([]);
+        }
+
+        return $this->has(
+            Team::factory()
+                ->state(fn (array $attributes, User $user) => [
+                    'name' => $user->name.'\'s Team',
+                    'user_id' => $user->id,
+                    'personal_team' => true,
+                ])
+                ->when(is_callable($callback), $callback),
+            'ownedTeams'
+        );
     }
 }

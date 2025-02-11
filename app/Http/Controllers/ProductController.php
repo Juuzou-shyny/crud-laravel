@@ -1,7 +1,7 @@
 <?php
 
 namespace App\Http\Controllers;
-
+use Inertia\Inertia;
 use Illuminate\Http\Request;
 use App\Models\Product;
 class ProductController extends Controller
@@ -9,8 +9,13 @@ class ProductController extends Controller
    // Mostrar todos los productos
    public function index()
    {
-       $products = Product::all();
-       return view('products.index', compact('products'));
+       // Obtiene todos los productos de la base de datos
+       $products = Product::with('category')->get(); // Usa eager loading para evitar N+1 queries
+
+        // Renderiza la vista Index.vue y pasa los productos como propiedades
+        return Inertia::render('Products/Index', [
+            'products' => $products,
+        ]);
    }
 
  // Agregar un nuevo producto
