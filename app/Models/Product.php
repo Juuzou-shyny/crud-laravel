@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class Product extends Model
 {
     use HasFactory;
+    protected $fillable = ['name', 'description', 'category_id'];
     public function category()
 {
     return $this->belongsTo(Category::class);
@@ -27,4 +28,17 @@ public function orderItems()
 {
     return $this->hasMany(OrderItem::class);
 }
+
+
+
+    // 🔥 Al eliminar una planta, también se elimina su caretip automáticamente
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::deleting(function ($product) {
+            $product->caretip()->delete();
+        });
+    }
+
 }

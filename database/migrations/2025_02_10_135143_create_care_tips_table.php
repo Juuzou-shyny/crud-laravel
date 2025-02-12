@@ -14,7 +14,9 @@ return new class extends Migration
         Schema::create('care_tips', function (Blueprint $table) {
             $table->id();
             $table->foreignId('product_id')->constrained('products')->onDelete('cascade'); // Relación con products
-            $table->string('tip'); // Consejo de cuidado
+            $table->string('watering')->nullable(); // 🔹 Riego
+            $table->string('sunlight')->nullable(); // 🔹 Luz solar
+            $table->string('temperature')->nullable(); // 🔹 Temperatura
             $table->timestamps();
         });
     }

@@ -2,7 +2,7 @@
     "compilerOptions": {
         "baseUrl": ".",
         "paths": {
-            "@/*": ["resources/js/*"]
+            "@/*": ["resources/js/*", "!resources/js/Pages/Products/show.vue"]
         }
     },
     "exclude": ["node_modules", "public"]

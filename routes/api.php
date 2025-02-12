@@ -8,9 +8,22 @@ use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\CareTipController;
 
 
+Route::get('/caretips', [CareTipController::class, 'index']);
+Route::post('/caretips', [CareTipController::class, 'store']);
+Route::get('/caretips/{id}', [CareTipController::class, 'show']);
+Route::put('/caretips/{id}', [CareTipController::class, 'update']);
+Route::delete('/caretips/{id}', [CareTipController::class, 'destroy']);
+
+
 Route::apiResource('/plants', ProductController::class);
 Route::apiResource('/categories', CategoryController::class);
 Route::apiResource('/care-tips', CareTipController::class);
+
+
+Route::get('/categories', [CategoryController::class, 'index']);
+Route::get('/categories/{id}', [CategoryController::class, 'show']);
+
+
 
 // Ruta para obtener información temporal
 Route::get('/info', [ApiController::class, 'info']);

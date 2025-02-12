@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 use Inertia\Inertia;
 use Illuminate\Http\Request;
 use App\Models\Product;
+use App\Http\Controllers\CareTip;
 class ProductController extends Controller
 {
    // Mostrar todos los productos
@@ -55,6 +56,12 @@ class ProductController extends Controller
 
         return redirect()->route('products.index')->with('success', 'Producto eliminado correctamente.');
     }
+
+    public function caretip()
+{
+    return $this->hasOne(CareTip::class);
+}
+
 
 
 }

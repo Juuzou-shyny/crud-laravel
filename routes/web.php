@@ -17,9 +17,17 @@ use Inertia\Inertia;
 
 
 use App\Http\Controllers\ProductController;
+use App\Http\Controllers\CategoryController;
 
 
 
+Route::get('/categories', function () {
+    return Inertia::render('Categories/Index');
+})->name('categories.index');
+
+Route::get('/categories/{id}', function ($id) {
+    return Inertia::render('Categories/Show', ['id' => $id]);
+})->name('categories.show');
 
 
 Route::middleware(['auth'])->group(function () {
