@@ -12,6 +12,7 @@
         "laravel/framework": "^10.10",
         "laravel/jetstream": "^4.3",
         "laravel/sanctum": "^3.3",
+        "laravel/socialite": "^5.18",
         "laravel/tinker": "^2.8",
         "laravel/ui": "^4.6",
         "nesbot/carbon": "2.67",

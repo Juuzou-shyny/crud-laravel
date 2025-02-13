@@ -14,10 +14,11 @@ class Product extends Model
     return $this->belongsTo(Category::class);
 }
 
-public function careTips()
+public function caretip()
 {
-    return $this->hasMany(CareTip::class); // Solo aplicable a productos de la categoría "Planta"
+    return $this->hasOne(CareTip::class, 'product_id');
 }
+
 
 public function carts()
 {

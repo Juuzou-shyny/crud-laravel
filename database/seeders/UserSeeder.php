@@ -17,7 +17,7 @@ class UserSeeder extends Seeder
             'name' => 'Admin',
             'email' => 'admin@example.com',
             'password' => bcrypt('password'), // Contraseña cifrada
-            'is_admin' => true,
+            'role' => 'admin'
         ]);
     }
 }

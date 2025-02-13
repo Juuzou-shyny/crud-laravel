@@ -4,21 +4,19 @@ namespace App\Http\Controllers;
 use Inertia\Inertia;
 use Illuminate\Http\Request;
 use App\Models\Product;
-use App\Http\Controllers\CareTip;
+use App\Models\CareTip;
 class ProductController extends Controller
 {
    // Mostrar todos los productos
+
    public function index()
    {
-       // Obtiene todos los productos de la base de datos
-       $products = Product::with('category')->get(); // Usa eager loading para evitar N+1 queries
+       $products = Product::with('category')->get(); // 🔹 Cargar también la categoría
 
-        // Renderiza la vista Index.vue y pasa los productos como propiedades
-        return Inertia::render('Products/Index', [
-            'products' => $products,
-        ]);
+       return Inertia::render('Products/Index', [
+           'products' => $products, // 🔹 Enviar productos a Vue
+       ]);
    }
-
  // Agregar un nuevo producto
  public function store(Request $request)
  {

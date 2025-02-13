@@ -12,3 +12,11 @@ Este proyecto es un CRUD desarrollado en Laravel para gestionar productos.
    ```bash
    git clone https://github.com/Juuzou-shyny/crud-laravel.git
 
+
+
+   (mi usuario de esta api para que no se me olvide, es el rol admin:
+   name: sheila
+   correo: sheila@examen.com
+   contraseña: sheila
+   )
+

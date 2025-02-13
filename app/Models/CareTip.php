@@ -15,7 +15,8 @@ class CareTip extends Model
     // Relación: Un caretip pertenece a un producto
     public function product()
     {
-        return $this->belongsTo(Product::class);
+        return $this->belongsTo(Product::class, 'product_id');
     }
+
 }
 

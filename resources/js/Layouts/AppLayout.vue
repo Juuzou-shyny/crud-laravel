@@ -47,11 +47,17 @@ const logout = () => {
                             </div>
 
                             <!-- Navigation Links -->
-                            <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
-                                <NavLink :href="route('dashboard')" :active="route().current('dashboard')">
-                                    Dashboard
-                                </NavLink>
-                            </div>
+                    <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
+                        <NavLink :href="route('dashboard')" :active="route().current('dashboard')">
+                                Dashboard
+                        </NavLink>
+
+                    <!-- BOTÓN PARA ADMINISTRADOR (Solo si el usuario es admin) -->
+                       <NavLink v-if="$page.props.auth.user && $page.props.auth.user.role === 'admin'" :href="route('admin.dashboard')">
+                                 Panel de Administración
+                       </NavLink>
+                   </div>
+
                         </div>
 
                         <div class="hidden sm:flex sm:items-center sm:ms-6">

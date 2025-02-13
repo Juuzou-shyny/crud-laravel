@@ -13,11 +13,9 @@ return new class extends Migration
     {
         Schema::create('carts', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('user_id'); // Clave foránea para users
-            $table->unsignedBigInteger('product_id'); // Clave foránea para products
-            $table->integer('quantity')->default(1); // Cantidad de productos
-            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
-            $table->foreign('product_id')->references('id')->on('products')->onDelete('cascade');
+            $table->foreignId('user_id')->constrained()->onDelete('cascade');
+            $table->foreignId('product_id')->constrained()->onDelete('cascade'); // Agregamos product_id
+            $table->integer('quantity')->default(1); // Agregamos quantity
             $table->timestamps();
         });
     }

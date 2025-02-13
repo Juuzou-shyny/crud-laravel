@@ -9,9 +9,47 @@ use Illuminate\Notifications\Notifiable;
 use Laravel\Fortify\TwoFactorAuthenticatable;
 use Laravel\Jetstream\HasProfilePhoto;
 use Laravel\Sanctum\HasApiTokens;
+use App\Models\Cart;
+use App\Models\Order;
 
 class User extends Authenticatable
 {
+
+    public function cart()
+    {
+        return $this->hasOne(Cart::class);
+    }
+
+    public function orders()
+    {
+        return $this->hasMany(Order::class);
+    }
+
+
+    public function cartItems()
+    {
+        return $this->hasMany(CartItem::class);
+    }
+
+    /**
+     * Check if the user is an admin.
+     *
+     * @return bool
+     */
+// Método para verificar si el usuario es admin
+public function isAdmin()
+{
+    return $this->role === 'admin';
+}
+
+// Método para verificar si el usuario es un cliente normal
+public function isUser()
+{
+    return $this->role === 'user';
+}
+
+
+
     use HasApiTokens;
     use HasFactory;
     use HasProfilePhoto;
@@ -27,6 +65,7 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'role',
     ];
 
     /**
@@ -58,4 +97,11 @@ class User extends Authenticatable
     protected $appends = [
         'profile_photo_url',
     ];
+
+
+    /**
+     * Check if the user is an admin.
+     *
+     * @return bool
+     */
 }
