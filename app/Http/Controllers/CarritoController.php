@@ -14,38 +14,38 @@ class CarritoController extends Controller
 {
 
     public function index()
-{
-    // 1. Obtener o crear el pedido/carrito activo
-    $pedido = Pedido::firstOrCreate([
-        'user_id' => Auth::id(),
-        'estado' => 'carrito'
-    ], [
-        'fecha_pedido' => now(),
-        'total' => 0,
-        'estado' => 'carrito'
-    ]);
+    {
+        // 1. Obtener o crear el pedido/carrito activo
+        $pedido = Pedido::firstOrCreate([
+            'user_id' => Auth::id(),
+            'estado' => 'carrito'
+        ], [
+            'fecha_pedido' => now(),
+            'total' => 0,
+            'estado' => 'carrito'
+        ]);
 
-    // 2. Cargar los ítems con sus productos (si existen)
-    $items = DetallePedidos::with('producto')->where('pedido_id', $pedido->id)->get();
+        // 2. Cargar los ítems con sus productos (si existen)
+        $items = DetallePedidos::with('producto')->where('pedido_id', $pedido->id)->get();
 
-    // 3. Preparar datos para Vue de forma segura
-    $mappedItems = $items->map(function ($item) {
-        return [
-            'id' => $item->id,
-            'cantidad' => $item->cantidad,
-            'producto' => optional($item->producto)->only(['id', 'nombre', 'precio', 'imagen_url']),
-        ];
-    });
+        // 3. Preparar datos para Vue de forma segura
+        $mappedItems = $items->map(function ($item) {
+            return [
+                'id' => $item->id,
+                'cantidad' => $item->cantidad,
+                'producto' => optional($item->producto)->only(['id', 'nombre', 'precio', 'imagen_url']),
+            ];
+        });
 
-    // 4. Calcular total de forma segura
-    $total = $items->sum(fn($item) => $item->cantidad * optional($item->producto)->precio);
+        // 4. Calcular total de forma segura
+        $total = $items->sum(fn($item) => $item->cantidad * optional($item->producto)->precio);
 
-    // 5. Devolver datos a la vista
-    return Inertia::render('Carrito/Index', [
-        'items' => $mappedItems,
-        'total' => $total
-    ]);
-}
+        // 5. Devolver datos a la vista
+        return Inertia::render('Carrito/Index', [
+            'items' => $mappedItems,
+            'total' => $total
+        ]);
+    }
 
     public function store(Request $request)
     {
@@ -106,6 +106,8 @@ class CarritoController extends Controller
         return redirect()->back();
     }
 
+
+
     public function checkout()
     {
         // Obtener el carrito activo
@@ -113,60 +115,70 @@ class CarritoController extends Controller
             ->where('estado', 'carrito')
             ->firstOrFail();
 
-        // Actualizar a estado "pendiente"
+        // Cargar los detalles con sus productos
+        $pedido->load('detallesPedido');
+
+        // Validar que tenga productos
+        if ($pedido->detallesPedido->isEmpty()) {
+            return back()->with('error', 'No puedes finalizar un carrito vacío');
+        }
+
+        // Calcular total
+        $total = $pedido->detallesPedido->sum('subtotal');
+
+        // Actualizar estado
         $pedido->update([
             'estado' => 'pendiente',
             'fecha_pedido' => now(),
-            'total' => $pedido->detalles->sum('subtotal')
+            'total' => $total
         ]);
 
         return redirect()->route('gracias')->with('success', 'Pedido completado con éxito');
     }
 
-
     public function agregarProducto(Request $request)
-{
-    $request->validate([
-        'producto_id' => 'required|exists:productos,id',
-        'cantidad' => 'required|integer|min:1'
-    ]);
+    {
+        $request->validate([
+            'producto_id' => 'required|exists:productos,id',
+            'cantidad' => 'required|integer|min:1'
+        ]);
 
-    // Obtener o crear el pedido/carrito activo
-    $pedido = Pedido::firstOrCreate([
-        'user_id' => Auth::id(),
-        'estado' => 'carrito'
-    ], [
-        'fecha_pedido' => now(),
-        'total' => 0,
-        'estado' => 'carrito'
-    ]);
+        // Obtener o crear el pedido/carrito activo
+        $pedido = Pedido::firstOrCreate([
+            'user_id' => Auth::id(),
+            'estado' => 'carrito'
+        ], [
+            'fecha_pedido' => now(),
+            'total' => 0,
+            'estado' => 'carrito'
+        ]);
 
-    // Buscar si el producto ya está en el carrito
-    $item = DetallePedidos::firstOrNew([
-        'pedido_id' => $pedido->id,
-        'producto_id' => $request->producto_id
-    ]);
+        // Buscar si el producto ya está en el carrito
+        $item = DetallePedidos::firstOrNew([
+            'pedido_id' => $pedido->id,
+            'producto_id' => $request->producto_id
+        ]);
 
-    // Cargar el producto
-    $producto = Producto::findOrFail($request->producto_id);
+        // Cargar el producto
+        $producto = Producto::findOrFail($request->producto_id);
 
-    if ($item->cantidad + $request->cantidad > $producto->stock) {
-        return back()->withErrors(['error' => 'No hay suficiente stock disponible']);
+        if ($item->cantidad + $request->cantidad > $producto->stock) {
+            return back()->withErrors(['error' => 'No hay suficiente stock disponible']);
+        }
+
+        // Si es nuevo, asignar valores necesarios
+        if (!$item->exists) {
+            $item->pedido_id = $pedido->id;
+            $item->producto_id = $request->producto_id;
+            $item->precio_unitario = $producto->precio;
+        }
+
+        $item->cantidad += $request->cantidad;
+        $item->subtotal = $item->cantidad * $producto->precio;
+
+        $item->save();
+
+        // 👇 Recarga los datos del carrito con Inertia
+        return to_route('carrito.index');
     }
-
-    // Si es nuevo, asignar valores necesarios
-    if (!$item->exists) {
-        $item->pedido_id = $pedido->id;
-        $item->producto_id = $request->producto_id;
-        $item->precio_unitario = $producto->precio;
-    }
-
-    $item->cantidad += $request->cantidad;
-    $item->subtotal = $item->cantidad * $producto->precio;
-
-    $item->save();
-
-    // 👇 Recarga los datos del carrito con Inertia
-    return to_route('carrito.index');
-}
 }
