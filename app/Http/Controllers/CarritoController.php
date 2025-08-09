@@ -178,7 +178,7 @@ class CarritoController extends Controller
 
         $item->save();
 
-        // 👇 Recarga los datos del carrito con Inertia
+        // Recarga los datos del carrito con Inertia
         return to_route('carrito.index');
     }
 }

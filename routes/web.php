@@ -6,6 +6,12 @@ use Inertia\Inertia;
 use App\Http\Controllers\CarritoController;
 use App\Http\Controllers\PedidoController;
 use App\Http\Controllers\ProductoController;
+use App\Http\Controllers\ComentarioController;
+
+Route::middleware(['auth'])->group(function () {
+    Route::post('/comentarios', [ComentarioController::class, 'store'])->name('comentarios.store');
+    
+});
 
 
 Route::get('/plantas', [ProductoController::class, 'indexPlantas'])->name('plantas.index');

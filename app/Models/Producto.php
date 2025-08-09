@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -11,9 +12,21 @@ class Producto extends Model
 
 
     protected $fillable = [
-        'nombre', 'descripcion', 'precio', 'stock', 'imagen_url', 'categoria_id',
+        'nombre',
+        'descripcion',
+        'precio',
+        'stock',
+        'imagen_url',
+        'categoria_id',
+        'comentarios'
     ];
 
+
+        protected $casts = [
+        'comentarios' => 'array',
+    ];
+
+    
     public function categoria()
     {
         return $this->belongsTo(Categoria::class);
@@ -25,7 +38,7 @@ class Producto extends Model
         return $this->hasMany(DetallePedidos::class);
     }
 
-      public function detallesPlanta()
+    public function detallesPlanta()
     {
         return $this->hasOne(PlantaDetalle::class);
     }
@@ -39,4 +52,6 @@ class Producto extends Model
     {
         return $this->esPlanta ? 'Planta' : 'Producto';
     }
+
+
 }
